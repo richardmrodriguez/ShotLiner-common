@@ -1,4 +1,4 @@
-# Basic Usage
+# Basic Usage 
 
 This module is a simple wrapper for the UglyToad PDFPig library, with a specific focus on Screenplay PDFs.
 

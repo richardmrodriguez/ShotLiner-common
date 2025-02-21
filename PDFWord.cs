@@ -1,14 +1,13 @@
 using Godot;
 using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
+using Godot.Collections;
+using UglyToad.PdfPig.Content;
 
 
 [GlobalClass]
 public partial class PDFWord : GodotObject
 {
-    public Godot.Collections.Array<PDFLetter> GDLetters = new();
+    public Array<PDFLetter> PDFLetters = new();
 
     public Vector2 WordPos = new();
     public Vector2 WordBBox = new();
@@ -17,7 +16,7 @@ public partial class PDFWord : GodotObject
     public string GetWordString()
     {
         string newString = "";
-        foreach (PDFLetter letter in GDLetters)
+        foreach (PDFLetter letter in PDFLetters)
         {
             newString += letter.Str;
 
@@ -27,12 +26,12 @@ public partial class PDFWord : GodotObject
 
     public Vector2 GetPosition()
     {
-        if (GDLetters.Count == 0)
+        if (PDFLetters.Count == 0)
         {
             GD.Print(" NO LETTERS");
             return new Vector2();
         }
-        return GDLetters[0].Location;
+        return PDFLetters[0].Location;
     }
 
     private Vector2 GetWordBBoxFromLetters()
@@ -40,4 +39,41 @@ public partial class PDFWord : GodotObject
         // TODO: Implement
         return new Vector2();
     }
+
+    public Dictionary GetWordAsDict()
+    {
+        Godot.Collections.Array<Dictionary> lettersArray = new();
+        foreach (PDFLetter lt in PDFLetters)
+        {
+            lettersArray.Add(lt.GetLetterAsDict());
+        }
+
+        Dictionary WordDict = new()
+        {
+            {"pdfletters",lettersArray},
+            {"wordpos", (string)GD.VarToStr(WordPos)},
+            {"wordbbox", (string)GD.VarToStr(WordBBox)}
+        };
+
+        return WordDict;
+    }
+
+
+
+    public void SetWordFromDict(Dictionary WordDict)
+    {
+        PDFLetters = new();
+        foreach (Dictionary NLDict in (Array<Dictionary>)WordDict["pdfletters"])
+        {
+            PDFLetter NewLetter = new();
+            NewLetter.SetLetterFromDict(NLDict);
+            PDFLetters.Add(NewLetter);
+        }
+        WordPos = (Vector2)GD.StrToVar((string)WordDict["wordpos"]);
+        WordBBox = (Vector2)GD.StrToVar((string)WordDict["wordbbox"]);
+
+    }
+
+
+
 }
